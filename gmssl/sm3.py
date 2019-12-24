@@ -9,8 +9,11 @@ from .libsm3 import lib_sm3, sm3_hash
 
 if lib_sm3 is None:
     from .sm3_implement import *
+    print("import sm3_implement")
+    from .sm3_implement import sm3_kdf
 else:
     from .libsm3 import *
+
 
 print(sm3_hash(b'01'))
 assert sm3_hash(b'01').upper() == "7f4528abbaeb75420d8ae5842f12b221deb73722d49e02fccb461450e0c1d7ad".upper()

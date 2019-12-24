@@ -1056,6 +1056,11 @@ def ECG_k_point(k, p):
             #print('add:' + str(t_end - t_start))
     return point_q
 
+def fix_integer(num):
+    int_hex = hex(num)[2:]
+    return '0'*(64-len(int_hex)) + int_hex
+
+
 # Fp 椭圆曲线测试 #
 #config.set_q(23)
 #config.set_a(1)
@@ -1087,7 +1092,7 @@ def ECG_k_point(k, p):
 input: 有效的椭圆曲线系统参数集合
 output: 与输入参数相关的一个密钥对(d, P)
 '''
-def key_pair_generation():
+def key_pair_generation(privkey=None):
     '''
     config.set_q(parameters['q'])
     config.set_a(parameters['a'])
@@ -1100,23 +1105,30 @@ def key_pair_generation():
     '''
     point_g = Point(get_Gx(), get_Gy())
     n = get_n()
-
-    d = random.randint(1, n - 2)
+    d = None
+    if privkey is None:
+        d = random.randint(1, n - 2)
+    else:
+        if isinstance(privkey ,str):
+            privkey = int(privkey,16)
+        d = privkey
     p = ECG_k_point(d, point_g)
     keypair = []
     keypair.append(d)
     keypair.append(p)
     return keypair
 
-
-def fix_integer(num):
-    int_hex = hex(num)[2:]
-    return '0'*(64-len(int_hex)) + int_hex
-
+def sm2_privkey_to_pub(privkey,toupper=False):
+    keypair = key_pair_generation(privkey)
+    pair = sm2_key_pair_gen(keypair)
+    if toupper:
+        return pair[1].upper()
+    return pair[1]
 
 # 产生密钥对 #
-def sm2_key_pair_gen():
-    key_pair = key_pair_generation()
+def sm2_key_pair_gen(key_pair=None):
+    if(key_pair is None):
+        key_pair = key_pair_generation()
     prive_key = key_pair[0]
     pub_key = bytes_to_str(point_to_bytes(key_pair[1]))
 
